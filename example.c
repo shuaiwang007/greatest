@@ -160,6 +160,23 @@ TEST fail_via_ASSERT_OR_LONGJMP(void) {
 }
 #endif
 
+TEST expect_mem_equal(void) {
+    char got[56];
+    char exp[sizeof(got)];
+    size_t i = 0;
+    for (i = 0; i < sizeof(got); i++) {
+        exp[i] = i;
+        got[i] = i;
+    }
+
+    /* Two bytes differ */
+    got[23] = 'X';
+    got[33] = 'X';
+
+    ASSERT_MEM_EQm("expected matching memory", got, exp, sizeof(got));
+    PASS();
+}
+
 static void trace_setup(void *arg) {
     printf("-- in setup callback\n");
     teardown_was_called = 0;
@@ -238,6 +255,9 @@ SUITE(suite) {
         printf("greatest was run with verbosity level: %u\n",
             greatest_get_verbosity());
     }
+
+    printf("\nThis should fail:\n");
+    RUN_TEST(expect_mem_equal);
 }
 
 TEST standalone_test(void) {
